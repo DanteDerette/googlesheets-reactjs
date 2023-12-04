@@ -37,6 +37,21 @@ export default function TabelaSomenteLeitura() {
   const rowReader = () => {
     if (oQueClicou != 0) {
       handleClickOpen();
+      let temp_arr = [];
+
+      console.log(allParams);
+
+      Object.keys(allParams).forEach((key) => {
+        console.log(allParams[key]);
+        temp_arr.push({
+          label: key,
+          value: allParams[key],
+          name: key.trim(),
+          handleChange: myHandleChange(),
+        });
+      });
+
+      setInputs_dialog(temp_arr);
     }
   };
 
@@ -62,56 +77,74 @@ export default function TabelaSomenteLeitura() {
     return objectsArray;
   };
 
-  const [obj, setObj] = useState({});
+  // const [obj, setObj] = useState({});
 
   useEffect(() => {
-    let minhaUrl =
-      'https://script.google.com/macros/s/AKfycbx7gvxTAmMm-FERLMQoEWwZkietvayV7zhTWnlSlbP5Keg1buZNXtMRTGI-DAcLBLbrYg/exec?';
-    let qualFuncao = 'qualFuncao=read';
-    let requestURL = minhaUrl + qualFuncao;
+    // let minhaUrl = '';
+    // if (window.location.href == 'http://localhost:5173/') {
+    //   minhaUrl =
+    //     'https://script.google.com/macros/s/AKfycbyU9cjmn_E5S5RdggdC4xxRO9hPeVo_bAsDxSJWmK2gfjWXiQ93PSIhGqL1m7a6fMRRNA/exec?';
+    // } else {
+    //   minhaUrl = window.location.href + '?';
+    //   alert(minhaUrl);
+    // }
+    // let qualFuncao = 'qualFuncao=read';
+    // let requestURL = minhaUrl + qualFuncao;
 
-    fetch(requestURL)
-      .then(function (response) {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          return response.json();
-        } else {
-          return response.text();
-        }
+    google.script.run
+      .withSuccessHandler(function (resposta) {
+        alert(resposta);
+        resposta = arrayToObjects(JSON.parse(resposta));
+        setRows(resposta);
       })
-      .then(function (data) {
-        data = arrayToObjects(JSON.parse(data));
-        setRows(data);
-        let temp_arr = [];
+      .read();
 
-        Object.keys(data[0]).forEach((key) => {
-          temp_arr.push({
-            label: key,
-            value: '5',
-            name: key.trim(),
-            handleChange: myHandleChange(),
-          });
-        });
+    // fetch(requestURL)
+    //   .then(function (response) {
+    //     if (!response.ok) {
+    //       throw new Error('Network response was not ok');
+    //     }
 
-        setInputs_dialog(temp_arr);
-      })
-      .catch(function (error) {
-        console.error('Error during fetch operation:', error);
-      });
+    //     const contentType = response.headers.get('content-type');
+    //     if (contentType && contentType.includes('application/json')) {
+    //       return response.json();
+    //     } else {
+    //       return response.text();
+    //     }
+    //   })
+    //   .then(function (data) {
+    //     data = arrayToObjects(JSON.parse(data));
+    //     setRows(data);
+
+    //     // let temp_arr = [];
+
+    //     // Object.keys(data[0]).forEach((key) => {
+    //     //   temp_arr.push({
+    //     //     label: key,
+    //     //     value: '5',
+    //     //     name: key.trim(),
+    //     //     handleChange: myHandleChange(),
+    //     //   });
+    //     // });
+
+    //     // setInputs_dialog(temp_arr);
+    //   })
+    //   .catch(function (error) {
+    //     console.error('Error during fetch operation:', error);
+    //   });
   }, []);
 
   const myHandleChange = () => {
-    console.log('Aqui');
+    // console.log('Aqui');
   };
 
   const [inputs_dialog, setInputs_dialog] = useState([]);
 
+  const [allParams, setAllParams] = useState({});
+
   const handleRowClick = (params) => {
     setOQueClicou(params.row.id);
+    setAllParams(params.row);
   };
 
   return (
@@ -135,8 +168,9 @@ export default function TabelaSomenteLeitura() {
               </Button>
             </Grid>
           </Grid>
+
           <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Formulário</DialogTitle>
+            {/* <DialogTitle>Formulário</DialogTitle> */}
             <DialogContent>
               <Grid container spacing={2}>
                 {inputs_dialog.map((item, index) => (
